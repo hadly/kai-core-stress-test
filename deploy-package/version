@@ -1,5 +1,8 @@
-
-
+#----------------------------------------------
 arbiter=newest devel
 device-server=dev-b00587e
 simulator=/home/kaiadmin/node-simulator/ sep-12
+
+
+
+

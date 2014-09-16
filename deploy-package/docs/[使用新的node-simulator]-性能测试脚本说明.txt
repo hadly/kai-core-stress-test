@@ -1,0 +1,168 @@
+1.clone-kainode-simulators.sh
+#TODO: if there are more than one DS machines ,this will be a bug
+
+2.
+
+1.deploy-all.sh
+----clean-all-deploy.sh
+	--到目录~/stress-test-arbiter,执行sh close-all.sh
+	--删除~/stress-test-arbiter
+	--登陆h264服务器，删除~/stress-test-h264
+	--针对每个DS机器登陆后执行rm -r ~/stress-test-ds
+	
+----deploy-arbiter.sh
+	--mkdir -p ~/stress-test-arbiter
+	--拷贝arbiter-server/*和stress-test.conf到~/stress-test-arbiter
+	--进行部署Arbiter
+
+----deploy-ds.sh
+	--针对每一个DS机器，进行部署
+	--将device-server/*和stress-test.conf拷贝到~/stress-test-ds
+	--登陆到DS服务器，执行cd ~/stress-test-ds/; sh clone-several-ds.sh $dsNumOnThisMachine
+	  --clone-several-ds.sh
+	    --针对每一个DS，执行cp -r ds-template  ds-$i
+
+----deploy-h264.sh
+	--将h264-server/*拷贝到对应服务器的~/stress-test-h264目录下
+	
+2.
+
+
+3.run-all.sh
+----stop-arbiter.sh
+	--删除日志
+	--关闭Arbiter服务
+	--删除device_events、ds_device_info、ds_server_info表中内容
+
+----stop-ds-h264.sh
+	--到h264服务器，执行cd ~/stress-test-h264/evo_server/scripts; sh kill.sh;
+	--针对每一个DS进程，执行cd ~/stress-test-ds; sh stop-all-ds.sh
+	  --stop-all-ds.sh
+		--关闭所有DS进程
+
+----config-arbiter.sh
+	--修改config-arbiter-server.properties中数据库名和密码
+	--修改max-device-num-on-device-server
+	--更新数据库中用于测试的设备数量update devices set model_id=115 where id<=$wholeDeviceNum;
+	                                update devices set model_id=100 where id>$wholeDeviceNum;
+
+----config-h264.sh
+    --拷贝stress-test.conf到~/stress-test-h264
+	--拷贝clone-kainode-simulators.sh到~/stress-test-h264/evo_server/kainode-simulator
+	--设置帧率；执行kainode-simulators.sh
+	  --clone-kainode-simulators.sh
+	    --针对每一个DS，cp -r `ls | grep -v "^simulator-"` ./simulator-$i (拷贝不以simulator开头的文件和文件夹到目标目录)
+		--修改config-node-simulator.properties里面cloud-port和cloud-host
+		--修改start-id和device-num，因为kainode模拟器需要向这个地址的端口发数据
+		  (如果有多个DS机器，这里会有问题，需要修改)
+
+----config-ds.sh
+	--针对每一台DS的机器；定制每一个机器上的stress-test.conf，并拷贝到~/stress-test-ds/
+	--执行cd ~/stress-test-ds/; sh config-all-ds.sh $servIdBegin
+	  ----config-all-ds.sh
+		  --针对每个DS，执行config-each-ds.sh
+		    --config-each-ds.sh
+			  --配置config-device-server-kai-node.properties里面的所有选项，host,port等
+			    比如serverid从1001,1002等；rtsp-port从12021,12022...等
+			  --设置PID的位置为pid/ds1...
+
+
+----start-arbiter.sh
+	--启动Arbiter；在启动的时候判断PID的目录是否存在，如果不存在就先删除
+
+----start-ds-h264.sh
+	----到H264的机器，删除运行日志，执行cd ~/stress-test-h264/evo_server/scripts; sh run.sh;
+	----如果不测试拉取码流，针对每个DS进程，执行cd ~/stress-test-ds; sh start-all-ds.sh;
+	    ----start-all-ds.sh
+			--启动每一个DS进程			
+	----如果要测试拉取码流，就需要将1-30的设备添加到DS1,31-60的设备添加到DS2...
+	    先执行cd ~/stress-test-ds; sh start-all-ds.sh;开启第一个DS，之后执行start-from-ds2.sh
+		--start-from-ds2.sh
+		  --检查第一个DS上是否已经添加了30个设备，select count(*) from ds_device_info where status=2 and server_id like \"$serverIdBegin\";
+		    如果没有添加完的话就一直循环等待
+		  --等到第一个上面添加了30个设备时，登陆到DS服务器执行start-other-ds.sh
+		    --start-other-ds.sh
+			  --一个个启动DS服务，每启动一个休息20s，等待31-60的设备添加完毕(这个休息时间应该放在配置文件里面)
+
+
+4.h264-server
+--evo_server
+  --evostreamms
+  --kainode-simulator
+    --config-device-server-kai-node.properties和DS的那个配置文件不一样，这个只是模拟器的配置文件
+	  --里面指定了server-type(应该是kai-node，但是由于失误写成了general-rtsp-ipc)
+	  --kainode-server-address指明了kainode DS的地址
+	  --rtsp-url为rtsp://localhost:8555/demo，就是从这个地址获取视频流
+	  --startID从1开始(如果有两个simulator，第二个的就从31开始，说明第二个是给DS2发送31-60的设备的码流)
+	  --deviceNum，比如30，说明该kainode会将1-30的视频流发到第一个DS上
+	  --kainode-video-port，13001,13002...第一个simulator给DS1的13001端口发送；第二个给DS1的13002端口发送...
+	  --kainode-info-port,14001,...
+	--kainodeSimulator可执行程序
+	--kill-simulator.sh
+	  --关掉模拟器，删除pid和log
+	--run-simulator.sh
+	  --nohup ./kainodeSimulator ./config-device-server-kai-node.properties > ./kainode.log 2>&1 &
+  --live
+    --h264PlayBack和test.264
+  --scripts
+    --start-all-kainode-simulators.sh
+	  --一个DS对应一个simulator，运行run-simulator.sh，启动下一个之前修改2秒
+	--stop-all-kainode-simulators.sh
+	  --关闭每个simulator
+	--run.sh
+	  --这里面有运行时设定的帧率
+	  --nohup ../live/h264PlayBack $rate 8555 ../live/test.264 > ./log/h264_server.log 2>&1 &
+	    在本机的8555端口上生成指定帧率的视频流
+	  --接下来运行以下内容(好像是没有使用evostream)
+	    cd ../evostreamms/bin/
+		nohup ./evostreamms ../config/config.lua > ../../scripts/log/evo_stream.log 2>&1 & 
+	  --之后运行start-all-kainode-simulators.sh
+	--kill.sh
+	  --停止h264PlayBack服务
+	  --运行stop-all-kainode-simulators.sh
+
+--在部署完之后，会将stress-test.conf拷贝到~/stress-test-h264  
+
+
+5.rtsp-client
+----start-rtsp-client.sh
+    --关闭所有测试客户端，pkill rtsp_client
+	--针对每一个DS机器，执行以下操作
+	  --针对每一个DS服务器，执行nohup ./rtsp_client $dsHost $rtspPortOfEachMachine $startDeviceId $eachDsDeviceNum >./log/machine$i-rtsp$j.log   2>&1 &
+        就是从dsHost的rtspPort拉取从startDeviceId到加上30的设备ID的码流；每个执行完之后休息2s		
+----stop-rtsp-client.sh
+    --pkill rtsp_client
+----rtsp_client 可执行程序
+----analysis-stream.sh
+    --从每个rtsp-client运行的结果中获取帧率，统计到一个resultForAnalysis.log文件中
+
+
+6.thrift-client
+----这个里面有个jar包，用于添加设备和更新设备的测试
+
+
+
+
+
+----------------------------------------------------------------------------
+测试发现的问题：
+1.在启动一个或者多个DS的时候，会出现以下这个错误，但不是必然出现的
+-不知道是哪个端口冲突了
+I0915 17:47:14.871449 29257 DeviceServerServiceHandler_Impl.cpp:78] # set channel count to 4
+terminate called after throwing an instance of 'zmq::error_t'
+  what():  Address already in use
+****************************************
+***  PROGRAM TERMINATED, RESTARTING  ***
+****************************************
+device server pid is 29472
+I0915 17:47:34.964663 29472 device_server.cpp:32] ##############################################################
+I0915 17:47:34.964762 29472 device_server.cpp:33] # Properties read OK!
+I0915 17:47:34.964769 29472 PropertiesReader.cpp:95] # arbiter-server-host: 10.101.10.210
+
+
+
+
+
+
+
+

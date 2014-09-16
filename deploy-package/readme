@@ -1,6 +1,34 @@
-1.arbiter and recording is latest
-2.ds-simulator is lateset
-3.ds can support 2 ports for receiving stream from kai-node simulator
-4.scripts is updated for kainode testing 
+#--------------------------------------------------------------------
+If you want to run this test, you need more things
+1.Put device-arbiter-server.jar under deploy-package\arbiter-server\device-arbiter-server\dist\
+  Put required *.jar to deploy-package\arbiter-server\device-arbiter-server\lib\
+2.Put device_server to deploy-package\device-server\ds-template\device_server\src\build-linux\
+3.Put h264-qvga\ h264-vga\ to deploy-package\h264-server\evo_server\kainode-simulator
+  Put kainodeSimulator to the same dir
+4.Put rtsp_client to deploy-package\rtsp-client
+5.Put stress-test-thrift-client.jar to deploy-package\thrift-client
+  Put lib\libthrift-0.8.0.jar log4j-1.2.14.jar slf4j-api-1.6.6.jar slf4j-jdk14-1.6.6.jar to deploy-package\thrift-client\lib
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
+
 
 
