@@ -1,0 +1,2 @@
+LOG_DIR=log
+PID_DIR=pid/210

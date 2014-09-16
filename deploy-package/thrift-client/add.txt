@@ -1,0 +1,2 @@
+
+java -cp "lib/*:./*" stresstest.DeviceAdd  number  host  hostaddress

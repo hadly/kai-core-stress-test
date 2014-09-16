@@ -1,0 +1,3 @@
+
+
+java -cp "lib/*:./*" stresstest.DeviceUpdateRemove update  from to  host  hostaddress  dev_key  num_per_second
