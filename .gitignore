@@ -46,7 +46,7 @@ Icon
 rtsp_client
 
 # Kainode simulator
-kainodeSimulator
+#kainodeSimulator
 h264-qvga
 h264-vga
 

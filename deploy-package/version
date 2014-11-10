@@ -1,8 +1,7 @@
-#----------------------------------------------
-arbiter=newest devel
-device-server=dev-b00587e
-simulator=/home/kaiadmin/node-simulator/ sep-12
+
+arbiter=devel-451c204
+device-server=dev-451c204
+simulator=xiufeng-give-me kainodeSimulator.tar.gz on Oct 16, not give me the source code
 
 
-
-
+1.All the parts is correct, the 20141017 report is tested using this package
