@@ -11,10 +11,10 @@ do
   
   #config how many ds needed on each ds machine
   dsNeededOnEach=dsNeeded$i
-  dsNeededOnEach=${!dsNeededOnEach}
+  dsNeededOnEach=`eval echo '$'$dsNeededOnEach`
 
   whichDsHost=dsHost$i
-  whichDsHost=${!whichDsHost}
+  whichDsHost=`eval echo '$'$whichDsHost`
   
   #renew the stress-test.conf on ds machine
   #set dsNeededOnThisMachine in stress-test.conf

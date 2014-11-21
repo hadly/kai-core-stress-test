@@ -34,7 +34,7 @@ for i in `seq $dsMachineNumber`
 #for((i=1;i<=$dsMachineNumber;i++))
 do
   whichDsHost=dsHost$i
-  whichDsHost=${!whichDsHost}
+  whichDsHost=`eval echo '$'$whichDsHost`
   echo "----deploy ds machine $whichDsHost"
   deployEachDsMachine $whichDsHost
   echo "----deploy succeed on machine $whichDsHost "

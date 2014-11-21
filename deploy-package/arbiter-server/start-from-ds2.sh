@@ -7,7 +7,7 @@ echo "------------------begin start ds-2 and other ds for ds machine $dsMachineI
 addOtherDevices()
 {
   machineId=dsHost$dsMachineId
-  machineId=${!machineId}
+  machineId=`eval echo '$'$machineId`
   echo "----start other ds on machine $machineId"
   ssh -i ~/kaisquare.pem $dsUserName@$machineId "cd ~/stress-test-ds; sh start-other-ds.sh"
 }

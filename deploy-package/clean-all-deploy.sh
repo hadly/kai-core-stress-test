@@ -19,7 +19,7 @@ for i in `seq $dsMachineNumber`;
 #for((i=1;i<=$dsMachineNumber;i++))
 do
   whichDsHost=dsHost$i   #here whichDsHost is "dsHost1"
-  whichDsHost=${!whichDsHost}  #here whichDsHost is 10.101...
+  whichDsHost=`eval echo '$'$whichDsHost`  #here whichDsHost is 10.101...
   echo "----begin clean ds machine $whichDsHost"
   ssh -i ~/kaisquare.pem $dsUserName@$whichDsHost "rm -r ~/stress-test-ds"
   echo "----succeed clean ds machine $whichDsHost"

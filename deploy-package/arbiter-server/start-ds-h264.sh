@@ -16,7 +16,7 @@ if [ $wantToPullStrem == 0 ];then
   for i in `seq $dsMachineNumber`;do
   #for((i=1;i<=$dsMachineNumber;i++));do
     whichDsHost=dsHost$i
-	whichDsHost=${!whichDsHost}
+	whichDsHost=`eval echo '$'$whichDsHost`
 	echo "----start ds on machine $whichDsHost"
 	#must start all of the device servers needed in start-all-ds.sh
 	ssh -i ~/kaisquare.pem $dsUserName@$whichDsHost "cd ~/stress-test-ds; sh start-all-ds.sh;"
@@ -27,7 +27,7 @@ else
   for j in `seq $dsMachineNumber`;do
   #for((j=1;j<=$dsMachineNumber;j++));do
     whichDs=dsHost$j
-	whichDs=${!whichDs}
+	whichDs=`eval echo '$'$whichDs`
     #just start one ds in scripts "start-all-ds.sh"
 	echo "----you want to test pull stream from device server"
 	echo "----start first ds on machine $whichDs"

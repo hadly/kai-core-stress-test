@@ -25,14 +25,14 @@ for i in `seq $dsMachineNumber`;
 do
   echo "-----------------------------pull h264 stream from machine $i"
   dsNumOnMachine=dsNeeded$i
-  dsNumOnMachine=${!dsNumOnMachine}  	#how many ds on this machine
+  dsNumOnMachine=`eval echo '$'$dsNumOnMachine`  	#how many ds on this machine
   if [ $dsMachineNumber == 1 ];then
     echo "----only pull stream from one machine"
     dsNumOnMachine=$dsNeeded
   fi
   
   dsHost=dsHost$i
-  dsHost=${!dsHost}		#ds ip address
+  dsHost=`eval echo '$'$dsHost`		#ds ip address
   rtspPortOfEachMachine=$rtspPort 		#for each machine,rtspPort is begin from 12020
  
   for j in `seq $dsNumOnMachine`; 

@@ -20,7 +20,7 @@ for i in `seq $dsMachineNumber`
 #for((i=1;i<=$dsMachineNumber;i++))
 do
   whichDsHost=dsHost$i
-  whichDsHost=${!whichDsHost}
+  whichDsHost=`eval echo '$'$whichDsHost`
   ssh -i ~/kaisquare.pem $dsUserName@$whichDsHost 'cd ~/stress-test-ds; sh stop-all-ds.sh'
   echo "----all ds stopped on machine $whichDsHost"
 
