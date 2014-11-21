@@ -11,7 +11,7 @@ ssh -i ~/kaisquare.pem $h264UserName@$h264Host "cd ~/stress-test-h264/evo_server
 
 
 #if==0,do not want to test pull stream
-if [ $wantToPullStrem == 0 ];then
+if [ $wantToPullStrem -eq 0 ];then
   #just start all the device servers on each ds machine
   for i in `seq $dsMachineNumber`;do
   #for((i=1;i<=$dsMachineNumber;i++));do

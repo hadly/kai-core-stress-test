@@ -20,7 +20,7 @@ do
   #set dsNeededOnThisMachine in stress-test.conf
   sed -i "s/dsNeededOnThisMachine=.*/dsNeededOnThisMachine=$dsNeededOnEach/g" ./stress-test.conf
   #if there is only on ds machine, set dsNeeded1=dsNeeded
-  if [ $dsMachineNumber == 1 ]
+  if [ $dsMachineNumber -eq 1 ]
   then
     sed -i "s/dsNeededOnThisMachine=.*/dsNeededOnThisMachine=$dsNeeded/g" ./stress-test.conf
   fi

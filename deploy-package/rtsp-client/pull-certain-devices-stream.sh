@@ -26,7 +26,7 @@ do
   echo "-----------------------------pull h264 stream from machine $i"
   dsNumOnMachine=dsNeeded$i
   dsNumOnMachine=`eval echo '$'$dsNumOnMachine`  	#how many ds on this machine
-  if [ $dsMachineNumber == 1 ];then
+  if [ $dsMachineNumber -eq 1 ];then
     echo "----only pull stream from one machine"
     dsNumOnMachine=$dsNeeded
   fi
