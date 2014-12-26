@@ -44,7 +44,7 @@
 <h2><a name="测试原理" id="测试原理"></a>1.测试原理</h2>
 <p> V4及以前的Core Engine中单独出来的Streaming Server只有crtmp server，所以我们要测试的就是crtmp server的性能。</p>
 <p> 我们的目标是测试出crtmp server最多能支持多少客户端从它上面拉取视频流进行查看。由于没办法模拟大量真实的客户查看视频流，所以使用curl（开源文件传输工具，可以用来从crtmp server获取视频流）从crtmp同时拉取多路视频流进行测试。测试原理图如下： </p>
-<p align="left"><img src="./schematic diagram.png" width="311" height="265" longdesc="../ss-test-manual-pic/schematic diagram.png" /></p>
+<p align="left"><img src="schematic-diagram.png" width="311" height="265" longdesc="../ss-test-manual-pic/schematic diagram.png" /></p>
 <h2><a name="服务器准备" id="服务器准备"></a>2.服务器准备</h2>
 <p>本文档中准备了两台服务器，1台运行Streaming Server，另一台运行多个curl程序，从Streaming Server获取视频流。</p>
 <p>本文中服务器分配如下：<br />
@@ -71,7 +71,7 @@
 </ul>
 <p align="center"> <img src="crtmpserver-media-path-config.png" width="323" height="81" /></p>
 <h4>3.2	安装&amp;配置curl客户端</h4>
-<p>在运行curl客户端的服务器上做如下操作（依赖包从Streaming-Server-Performance-Test-Dependencies.tar.gz中获取）：</p>
+<p>在运行curl客户端的服务器上执行如下操作（依赖包从Streaming-Server-Performance-Test-Dependencies.tar.gz中获取）：</p>
 <ul>
   <li>安装依赖包</li>
 </ul>
