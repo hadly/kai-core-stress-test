@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>Streaming-Server-Performance-Test-Manual</title>
+<style type="text/css">
+<!--
+.STYLE2 {color: #0080FF}
+.STYLE3 {font-size: xx-large; font-weight: bold; }
+-->
+</style>
+</head>
+
+<body>
+<p align="center"><span class="STYLE3">Streaming Server Performance Test Manual</span></p>
+<p align="center">&nbsp;</p>
+<p align="center"><strong>Version History </strong></p>
+<table width="878" border="1" align="center">
+  <tr>
+    <td width="150">Date</td>
+    <td width="400">Modification</td>
+    <td width="150">Author</td>
+    <td width="150">Auditor</td>
+  </tr>
+  <tr>
+    <td>2014/12/26</td>
+    <td>create</td>
+    <td>Li Zhinian</td>
+    <td>Li Zhinian</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+<h2 align="left">目录</h2>
+<p align="left"><a href="#测试原理">1.测试原理</a></p>
+<p align="left"><a href="#服务器准备">2.服务器准备</a></p>
+<p align="left"><a href="#服务器安装配置">3.服务器安装和配置</a></p>
+<p align="left"><a href="#测试点">4.测试点</a></p>
+<h2><a name="测试原理" id="测试原理"></a>1.测试原理</h2>
+<p> V4及以前的Core Engine中单独出来的Streaming Server只有crtmp server，所以我们要测试的就是crtmp server的性能。</p>
+<p> 我们的目标是测试出crtmp server最多能支持多少客户端从它上面拉取视频流进行查看。由于没办法模拟大量真实的客户查看视频流，所以使用curl（开源文件传输工具，可以用来从crtmp server获取视频流）从crtmp同时拉取多路视频流进行测试。测试原理图如下： </p>
+<p align="left"><img src="./schematic diagram.png" width="311" height="265" longdesc="../ss-test-manual-pic/schematic diagram.png" /></p>
+<h2><a name="服务器准备" id="服务器准备"></a>2.服务器准备</h2>
+<p>本文档中准备了两台服务器，1台运行Streaming Server，另一台运行多个curl程序，从Streaming Server获取视频流。</p>
+<p>本文中服务器分配如下：<br />
+  10.101.0.10作为Streaming Server<br />
+10.101.10.210作为curl客户端</p>
+<h2><a name="服务器安装配置" id="服务器安装配置"></a>3.服务器安装配置</h2>
+<h4>3.1 安装&amp;配置Streaming Server</h4>
+<p>在Streaming Server服务器上做如下操作：</p>
+<ul>
+  <li>安装</li>
+</ul>
+<blockquote>
+  <p>crtmp server的安装是包含在Core Engine的部署包里面的，所以请参考《ALIFF-KAIUP-CORE-Ubuntu-deployment-guide.docx》的描述在10.101.0.10上部署Core Engine（只需要部署就行，不用配置和运行）</p>
+</blockquote>
+<ul>
+  <li>配置
+    <ul>
+      <li> 拷贝video.mp4到~/目录下，比如拷贝到/home/kaisquare/下。video.mp4可以从Streaming-Server-Performance-Test-Dependencies.tar.gz中获取</li>
+      <li>到/tmp/目录下，创建一个名为metadata的文件夹（如果该文件夹不存在的话）<br />
+      </li>
+      <li>到目录kupcore/crtmpserver/builders/cmake/crtmpserver/下，修改crtmpserver.lua，将mediaFolder的路径改为存放video.mp4的绝对路径，如下图所示：</li>
+    </ul>
+  </li>
+</ul>
+<p align="center"> <img src="crtmpserver-media-path-config.png" width="323" height="81" /></p>
+<h4>3.2	安装&amp;配置curl客户端</h4>
+<p>在运行curl客户端的服务器上做如下操作（依赖包从Streaming-Server-Performance-Test-Dependencies.tar.gz中获取）：</p>
+<ul>
+  <li>安装依赖包</li>
+</ul>
+<blockquote>
+  <p>  拷贝rtmpdump.tar.gz到任意目录下，依次执行以下步骤：<br />
+    <span class="STYLE2">tar -zxvf rtmpdump.tar.gz<br />
+    cd rtmpdump/<br />
+    make<br />
+    sudo make install<br />
+    sudo ldconfig</span></p>
+</blockquote>
+<ul>
+  <li>安装curl</li>
+</ul>
+<blockquote>
+  <p>  拷贝curl-7.27.0.tar.gz到任意目录，依次执行以下步骤：<br />
+    <span class="STYLE2">tar -zxvf curl-7.27.0.tar.gz<br />
+    cd curl-7.27.0/<br />
+    ./configure<br />
+    make<br />
+    sudo make install<br />
+    sudo ldconfig</span></p>
+</blockquote>
+<ul>
+  <li>配置启动脚本</li>
+</ul>
+<blockquote>
+  <p>  拷贝start-pull-stream.sh到任意目录下，将脚本里面的crtmpHost的值改成Streaming Server所在服务器的host</p>
+</blockquote>
+<h4>3.3	运行服务</h4>
+<ul>
+  <li>运行Streaming Server</li>
+</ul>
+<blockquote>
+  <p>在Streaming Server服务器上，到目录kupcore/scripts/linux/下，执行<span class="STYLE2">sh run-all-crtmpserver.sh</span></p>
+</blockquote>
+<h2><a name="测试点" id="测试点"></a>4.测试点</h2>
+<p>运行start-pull-stream.sh从Streaming Server同时获取多路视频流，运行方法如下：</p>
+<p class="STYLE2">sh start-pull-stream.sh number</p>
+<p>其中的<span class="STYLE2">number</span>表示从Streaming Server同时拉取视频流的数量，我们就是要测试这个number的数值。即这个数值最大为多少时，Streaming Server的出口带宽占满，或者CPU性能到达极限，或者Streaming Server因为连接太多而不再响应。</p>
+<p>&nbsp;</p>
+<p>所以我们主要观察以下几个点：</p>
+<h4>4.1 查看Streaming Server的CPU占用情况</h4>
+<p>用htop查看服务器的CPU占用率</p>
+<h4>4.2 查看Streaming Server向外发送的视频流带宽情况</h4>
+<p>在Streaming Server上执行sudo iptraf 查看出口流量，具体方法如下：</p>
+<p>  执行sudo iptraf --&gt; 回车 --&gt; 选择Detailed interface statistics --&gt; 选择eth0 --&gt; 回车，如此就可以看到该服务器的出口流量情况，如下图：</p>
+<p align="left"><img src="iptraf-outgoing.png" width="645" height="298" /></p>
+<p>其中outgoing rates就是出口流量情况，观察一段时间，得到稳定状态下的该值大小。</p>
+<p>经过观察，如果同时有10个client同时在向Streaming Server请求视频流，出口流量大概在8000到9300 kbits/sec之间。随着client数量增加，该值会线性增长，即设备数为100时，大概在80000到93000kbits/sec之间。除非流量达到该服务器的网卡瓶颈（即如果该服务器网卡是百兆网卡，该出口流量最大就是100000kbits/sec）。</p>
+<h4>4.3 查看client和Streaming Server之间建立的连接数</h4>
+<p>在Streaming Server或者client服务器上执行如下命令：</p>
+<p><span class="STYLE2">sudo lsof -i:1935 | grep ESTABLISHED | wc -l</span></p>
+<p>如果得到的值和我们想同时拉取的视频流的数目<span class="STYLE2">number</span>一样，说明所有连接正常建立</p>
+<h4>4.4 查看client端服务器接收到的视频流带宽情况</h4>
+<p>  查看方法与4.2节中的类似</p>
+<h4>4.5增加同时拉取的client数量</h4>
+<p>如果以上四个观察点都正常的话，说明同时拉取的客户端的数量还没有达到最大值。这时先执行<span class="STYLE2">sh stop-pull-stream.sh</span> 关闭所有client连接，之后增加client数量再进行测试，比如<span class="STYLE2">sh start-pull-stream.sh number</span></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</body>
+</html>
